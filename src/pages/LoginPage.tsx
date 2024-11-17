@@ -6,8 +6,9 @@ import checkOff from "../assets/images/check-off.svg";
 import CheckButton from "../components/CheckButton";
 import Input from "../components/Input";
 import useLogin from "../hooks/login/useLogin";
-import {API} from "../enums/API";
-import {LoginRequest} from "../types/API";
+import {API, AuthType} from "../enums/API";
+import {LoginRequest, LoginResponse} from "../types/API";
+import {useReactQueryState} from "../store/useReactQueryState";
 
 interface LoginTypeProps {
     active: boolean;
@@ -202,12 +203,25 @@ const Hr = styled.hr`
     margin-top: 6vh;
 `;
 
+type CurrentUserState = {
+    accessToken: string;
+    refreshToken: string;
+    username: string;
+    authType: AuthType;
+}
+
 const LoginPage: React.FC = () => {
     const [loginState, setLoginState] = useState<LoginStateProps>({
         loginType: "MAIN",
         isSaveId: false,
         id: "",
         password: ""
+    });
+    const [currentUser, setCurrentUser] = useReactQueryState<CurrentUserState>("currentUser", {
+        accessToken: "",
+        refreshToken: "",
+        username: "",
+        authType: AuthType.NONE,
     });
 
     const loginRequestData : LoginRequest = {
@@ -272,10 +286,18 @@ const LoginPage: React.FC = () => {
                         loginAPI.run();
 
                         // TODO: loginAPI.loading이 True일 경우 로딩 Animation 추가해주면 좋을듯
-                        if (!loginAPI.loading) {
+                        if (!loginAPI.loading && loginAPI.error === null) {
                             // 요청 종료
                             // TODO: request Data 중에 token은 Cookie에 저장하고
-                            // TODO: authType이랑 username은 global store
+                            // authType이랑 username은 global store
+                            setCurrentUser((prev) => {
+                                if (loginAPI.data) {
+                                    const res : LoginResponse = loginAPI.data;
+                                    return {...prev, accessToken: res.accessToken, refreshToken: res.refreshToken, username: res.username, authType: res.authType};
+                                }
+                                alert("[Server Error] 로그인 시 에러가 발생했습니다. 관리자에게 문의해주세요.")
+                                return prev;
+                            });
                             // TODO: authType은 권한별 페이지 렌더링 다르게 할때 쓰면 좋을꺼같고
                             // TODO: username은 로그인한 유저 닉네임 확인 가능하도록 쓸꺼
                         }
