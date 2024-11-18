@@ -251,6 +251,13 @@ const LoginPage: React.FC = () => {
         }));
     }, []);
 
+    const enterLoginEvent = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            login({ id: loginState.id, password: loginState.password });
+        }
+    }
+
     return (<>
         <Header />
         <MainContainer>
@@ -274,11 +281,13 @@ const LoginPage: React.FC = () => {
                     <Input placeholder="아이디(이메일)을 입력해 주십시오."
                            value={loginState.id}
                            name="id"
-                           onChange={handleInputChange} />
+                           onChange={handleInputChange}
+                           onKeyDown={enterLoginEvent} />
                     <Input placeholder="비밀번호를 입력해 주십시오."
                            value={loginState.password}
                            name="password"
-                           onChange={handleInputChange} />
+                           onChange={handleInputChange}
+                           onKeyDown={enterLoginEvent} />
                     <CheckButton toggleHandler={saveIdToggleHandler}
                                  isChecked={loginState.isSaveId}
                                  content="아이디 저장" />

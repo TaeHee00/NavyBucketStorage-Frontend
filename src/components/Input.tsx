@@ -6,6 +6,7 @@ interface InputProps {
     value: string;
     name: string;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const InputContainer = styled.input`
@@ -35,7 +36,8 @@ const Input : React.FC<InputProps> = (props) => {
                            value={props.value}
                            name={props.name}
                            type={props.name === "password" ? props.name : "text"}
-                           onChange={props.onChange} />;
+                           onChange={props.onChange}
+                           onKeyDown={props.onKeyDown} />;
 };
 
 export default Input;
