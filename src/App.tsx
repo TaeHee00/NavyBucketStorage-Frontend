@@ -4,18 +4,21 @@ import LoginPage from './pages/LoginPage';
 import React from 'react';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
+import {CookiesProvider} from "react-cookie";
 
 const queryClient = new QueryClient();
 
 const App: React.FC = () => {
   return (
       <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-              <Routes>
-                  <Route path='/' element={<LoginPage />} />
-              </Routes>
-          </BrowserRouter>
-          <ReactQueryDevtools />
+          <CookiesProvider>
+              <BrowserRouter>
+                  <Routes>
+                      <Route path='/' element={<LoginPage />} />
+                  </Routes>
+              </BrowserRouter>
+              <ReactQueryDevtools />
+          </CookiesProvider>
       </QueryClientProvider>
   );
 }
