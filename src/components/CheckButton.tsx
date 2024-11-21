@@ -51,7 +51,7 @@ const CheckButtonContent = styled.span`
 const CheckButton: React.FC<CheckButtonProps> = (props) => {
     return (<MainContainer>
         <CheckInput type="checkbox"
-                    checked={props.isChecked}
+                    defaultChecked={props.isChecked}
                     onClick={props.toggleHandler === null || props.toggleHandler === undefined ? undefined : props.toggleHandler} />
         <CheckButtonContent>{props.content}</CheckButtonContent>
     </MainContainer>);
