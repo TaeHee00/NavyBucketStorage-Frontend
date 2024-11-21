@@ -9,7 +9,7 @@ export const useAuth = () => {
     const loginMutation = useMutation<{status: number, data: LoginResponse | {message: string}}, Error, LoginRequest>({
         mutationFn: (loginData: LoginRequest) => authAPI.login(loginData),
         onSuccess: (data: {status: number, data: LoginResponse | {message: string}}) => {
-            console.log("success", data);
+            queryClient.setQueryData(["loginError"], undefined);
             queryClient.setQueryData(["loginResponse"], data);
 
             if (data.status === 200) {
@@ -29,7 +29,8 @@ export const useAuth = () => {
                     alert("[Server Error] 서버에서 오류가 발생하였습니다. 관리자에게 문의해주십시오.");
                 } else {
                     const errorData = data.data as {message: string};
-                    alert(`${errorData.message}`);
+                    queryClient.setQueryData(["loginError"], errorData.message);
+                    // alert(`${errorData.message}`);
                 }
             }
         },
