@@ -4,11 +4,12 @@ import Header from "../components/Header";
 import checkOn from "../assets/images/check-on.svg";
 import checkOff from "../assets/images/check-off.svg";
 import CheckButton from "../components/CheckButton";
-import Input from "../components/Input";
+import Input, {LoginErrorType} from "../components/Input";
 import {useAuth} from "../hooks/login/useAuth";
+import {useQueryClient} from "@tanstack/react-query";
 
 interface LoginTypeProps {
-    active: boolean;
+    $active: boolean;
     onClick?: (loginType: string) => void;
 }
 
@@ -30,7 +31,7 @@ const MainContainer = styled.div`
     background: #F6F7F8;
 `;
 
-const LoginContainer = styled.div`
+export const CardContainer = styled.div<{width?: number}>`
     display: flex;
     padding: 6.42vh 5.125vw;
     flex-direction: column;
@@ -39,8 +40,10 @@ const LoginContainer = styled.div`
     border-radius: 20px;
     background: #FFF;
     box-shadow: 0 1px 23px 0 rgba(0, 0, 0, 0.05);
+
+    width: ${props => props.width ? `${props.width}vw` : null};
 `;
-const LoginTitleText = styled.span`
+export const TitleText = styled.span`
     color: #222;
     margin-bottom: 4.167vh;
 
@@ -59,43 +62,44 @@ const LoginTypeContainer = styled.div`
     justify-content: center;
     gap: 0.83vw;
 `;
+
 const LoginTypeButton = styled.button<LoginTypeProps>`
+  // 스타일 정의
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     width: 100%;
-    
+
     padding: 0.75vh 0;
     white-space: nowrap;
     cursor: pointer;
 
     border-radius: 6px;
-    
+
     font-family: "Pretendard Variable", serif;
     font-size: 0.938rem;
     font-style: normal;
     font-weight: 600;
     line-height: 30px;
-    
-    ${props => props.active ? css`
+
+    border: none;
+    background: #F0F0F0;
+    color: #444;
+    transition: all 0.2s ease;
+
+    &:hover {
+        transition: all 0.2s ease;
+        background: #d8d8d8;
+    }
+  ${({ $active }) => $active && css`
         border: 2px solid #117CE9;
         background: rgba(17, 124, 233, 0.14);
         color: #117CE9;
-      ` : css`
-        border: none;
-        background: #F0F0F0;
-        color: #444;
-        transition: all 0.2s ease;
-        
-        &:hover {
-            transition: all 0.2s ease;
-            background: #d8d8d8;
-        }
   `}
 `;
 
-const CheckIcon = styled.img<LoginTypeProps>`
+const CheckIcon = styled.img<{$active: boolean, src: string}>`
     width: 16px;
     height: 16px;
     justify-content: center;
@@ -209,6 +213,7 @@ const LoginPage: React.FC = () => {
     });
 
     const { login } = useAuth();
+    const queryClient = useQueryClient();
 
     const handleLoginType = useCallback((loginType: string) => {
         if (loginState.loginType === loginType) return;
@@ -240,18 +245,20 @@ const LoginPage: React.FC = () => {
     return (<>
         <Header />
         <MainContainer>
-            <LoginContainer>
-                <LoginTitleText>로그인</LoginTitleText>
+            <CardContainer>
+                <TitleText>로그인</TitleText>
                 <LoginTypeContainer>
-                    <LoginTypeButton active={loginState.loginType === "MAIN"}
-                                     onClick={() => handleLoginType("MAIN")} >
-                        <CheckIcon active={loginState.loginType === "MAIN"}
+                    <LoginTypeButton $active={loginState.loginType === "MAIN"}
+                                     onClick={() => handleLoginType("MAIN")}
+                                     type="button" >
+                        <CheckIcon $active={loginState.loginType === "MAIN"}
                                    src={loginState.loginType === "MAIN" ? checkOn : checkOff} />
                         메인 계정
                     </LoginTypeButton>
-                    <LoginTypeButton active={loginState.loginType === "IAM"}
-                                     onClick={() => handleLoginType("IAM")} >
-                        <CheckIcon active={loginState.loginType === "IAM"}
+                    <LoginTypeButton $active={loginState.loginType === "IAM"}
+                                     onClick={() => handleLoginType("IAM")}
+                                     type="button" >
+                        <CheckIcon $active={loginState.loginType === "IAM"}
                                    src={loginState.loginType === "IAM" ? checkOn : checkOff} />
                         IAM 계정
                     </LoginTypeButton>
@@ -261,12 +268,14 @@ const LoginPage: React.FC = () => {
                            value={loginState.id}
                            name="id"
                            onChange={handleInputChange}
-                           onKeyDown={enterLoginEvent} />
+                           onKeyDown={enterLoginEvent}
+                           warning={queryClient.getQueryData(["loginError"]) === LoginErrorType.USER_NOT_FOUND ? LoginErrorType.USER_NOT_FOUND : undefined} />
                     <Input placeholder="비밀번호를 입력해 주십시오."
                            value={loginState.password}
                            name="password"
                            onChange={handleInputChange}
-                           onKeyDown={enterLoginEvent} />
+                           onKeyDown={enterLoginEvent}
+                           warning={queryClient.getQueryData(["loginError"]) === LoginErrorType.INVALID_PASSWORD ? LoginErrorType.INVALID_PASSWORD : undefined} />
                     <CheckButton toggleHandler={saveIdToggleHandler}
                                  isChecked={loginState.isSaveId}
                                  content="아이디 저장" />
@@ -283,7 +292,7 @@ const LoginPage: React.FC = () => {
                         <FindButton>비밀번호 찾기</FindButton>
                     </FindContainer>
                 </BottomContainer>
-            </LoginContainer>
+            </CardContainer>
         </MainContainer>
     </>)
 }
