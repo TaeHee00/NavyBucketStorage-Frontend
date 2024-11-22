@@ -1,8 +1,11 @@
-import React from "react";
+import React, {useCallback, useState} from "react";
 import Header from "../components/Header";
 import styled from "styled-components";
 import {CardContainer, TitleText} from "./LoginPage";
 import Input from "../components/Input";
+import {Link} from "react-router-dom";
+import {useEmailCheck} from "../hooks/login/useAuth";
+import {useQueryClient} from "@tanstack/react-query";
 
 const MainContainer = styled.div`
     display: flex;
@@ -71,6 +74,12 @@ const LoginRouteContainer = styled.div`
     font-weight: 500;
     
     margin-top: 10vh;
+    
+    white-space: nowrap;
+    a {
+        text-decoration: none;
+        margin-left: 1%;
+    }
 `;
 
 const LoginRouteText = styled.span`
@@ -84,10 +93,24 @@ const LoginRouteText = styled.span`
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
     
     cursor: pointer;
-    margin-left: 1%;
 `;
 
 const RegisterPage: React.FC = () => {
+    const queryClient = useQueryClient();
+    const [email, setEmail] = useState("");
+    const {emailCheck} = useEmailCheck();
+
+    const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(() => event.target.value);
+    }, []);
+
+    const enterEmailEvent = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            emailCheck({email: email});
+        }
+    }
+
     return (<>
         <Header />
         <MainContainer>
@@ -95,16 +118,25 @@ const RegisterPage: React.FC = () => {
                 <TitleText>회원 가입을 시작합니다.</TitleText>
                 <RegisterFormContainer>
                     <Input placeholder="이메일 주소를 입력해 주십시오."
-                           value=""
+                           value={email}
                            name=""
-                           onChange={() => {}}
-                           onKeyDown={() => {}} />
-                    <RegisterButton>
+                           onChange={handleInputChange}
+                           onKeyDown={enterEmailEvent}
+                           warning={
+                               queryClient.getQueryData(["registerCheckEmailErrorMessage"]) !== undefined ?
+                                   queryClient.getQueryData(["registerCheckEmailErrorMessage"]) : undefined
+                           } />
+                    <RegisterButton onClick={() => {
+                        emailCheck({email: email});
+                        // TODO: 성공 시 다음 페이지로 Route
+                    }}>
                         이메일로 가입하기
                     </RegisterButton>
                     <LoginRouteContainer>
                         이미 계정이 있으신가요?
-                        <LoginRouteText>로그인</LoginRouteText>
+                        <Link to="/">
+                            <LoginRouteText onClick={() => {}}>로그인</LoginRouteText>
+                        </Link>
                     </LoginRouteContainer>
                 </RegisterFormContainer>
             </CardContainer>

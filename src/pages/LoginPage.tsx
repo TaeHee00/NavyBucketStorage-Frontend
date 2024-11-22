@@ -5,7 +5,7 @@ import checkOn from "../assets/images/check-on.svg";
 import checkOff from "../assets/images/check-off.svg";
 import CheckButton from "../components/CheckButton";
 import Input, {LoginErrorType} from "../components/Input";
-import {useAuth} from "../hooks/login/useAuth";
+import {useLogin} from "../hooks/login/useAuth";
 import {useQueryClient} from "@tanstack/react-query";
 
 interface LoginTypeProps {
@@ -212,7 +212,7 @@ const LoginPage: React.FC = () => {
         password: ""
     });
 
-    const { login } = useAuth();
+    const { login } = useLogin();
     const queryClient = useQueryClient();
 
     const handleLoginType = useCallback((loginType: string) => {
