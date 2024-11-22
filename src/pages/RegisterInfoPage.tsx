@@ -5,6 +5,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import Input from "../components/Input";
 import prevIcon from "../assets/images/prev.png"
 import nextIcon from "../assets/images/next.png"
+import {useQueryClient} from "@tanstack/react-query";
 
 const MainContainer = styled.div`
     display: flex;
@@ -115,8 +116,12 @@ const Icon = styled.img<{type: string}>`
 `;
 
 const RegisterInfoPage = () => {
-    const [registerInfo, setRegisterInfo] = useState({
-        email: "",
+    const queryClient = useQueryClient();
+    if (queryClient.getQueryData(["registerEmail"]) === undefined) {
+        queryClient.setQueryData(["registerEmail"], "");
+    }
+    const [registerInfo, setRegisterInfo] = useState<{email: string, password: string, passwordCheck: string, passwordValid: boolean}>({
+        email: queryClient.getQueryData(["registerEmail"]) as string,
         password: "",
         passwordCheck: "",
         passwordValid: true,

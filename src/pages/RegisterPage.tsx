@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import styled from "styled-components";
 import {CardContainer, TitleText} from "./LoginPage";
 import Input from "../components/Input";
-import {Link} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import {useEmailCheck} from "../hooks/login/useAuth";
 import {useQueryClient} from "@tanstack/react-query";
 
@@ -99,6 +99,7 @@ const RegisterPage: React.FC = () => {
     const queryClient = useQueryClient();
     const [email, setEmail] = useState("");
     const {emailCheck} = useEmailCheck();
+    const navigate = useNavigate();
 
     const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(() => event.target.value);
@@ -128,7 +129,9 @@ const RegisterPage: React.FC = () => {
                            } />
                     <RegisterButton onClick={() => {
                         emailCheck({email: email});
-                        // TODO: 성공 시 다음 페이지로 Route
+                        if (queryClient.getQueryData(["registerEmail"]) !== undefined) {
+                            navigate("/register/step/1");
+                        }
                     }}>
                         이메일로 가입하기
                     </RegisterButton>
