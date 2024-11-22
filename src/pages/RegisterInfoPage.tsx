@@ -131,17 +131,14 @@ const RegisterInfoPage = () => {
         }));
     }, []);
 
-    const passwordCheck = () => {
+    useEffect(() => {
         if (registerInfo.password === "" || registerInfo.passwordCheck === "") {
+            setRegisterInfo((prev) => ({...prev, passwordValid: true}));
             registerInfo.passwordValid = true;
             return;
         }
-        if (registerInfo.password === registerInfo.passwordCheck) {
-            registerInfo.passwordValid = false;
-        } else {
-            registerInfo.passwordValid = true;
-        }
-    }
+        setRegisterInfo((prev) => ({...prev, passwordValid: registerInfo.password === registerInfo.passwordCheck}));
+    }, [registerInfo.password, registerInfo.passwordCheck]);
 
     return (<>
         <Header />
@@ -163,10 +160,7 @@ const RegisterInfoPage = () => {
                         <Input placeholder="비밀번호를 입력해 주십시오."
                                value={registerInfo.password}
                                name="password"
-                               onChange={(e) => {
-                                   handleInputChange(e);
-                                   passwordCheck();
-                               }}
+                               onChange={handleInputChange}
                                onKeyDown={() => {}} />
                     </InputForm>
                     <InputForm>
@@ -174,10 +168,7 @@ const RegisterInfoPage = () => {
                         <Input placeholder="비밀번호를 다시 입력해 주십시오."
                                value={registerInfo.passwordCheck}
                                name="passwordCheck"
-                               onChange={(e) => {
-                                   handleInputChange(e);
-                                   passwordCheck();
-                               }}
+                               onChange={handleInputChange}
                                warning={!registerInfo.passwordValid ? "비밀번호와 비밀번호 확인이 일치하지 않습니다." : undefined}
                                onKeyDown={() => {}} />
                     </InputForm>
