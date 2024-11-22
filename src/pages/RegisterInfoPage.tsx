@@ -26,7 +26,7 @@ const RegisterInfoForm = styled.div`
     justify-content: center;
     
     margin-top: 1.2vh;
-    gap: 3vh;
+    gap: 2vh;
 `;
 
 const InputForm = styled.div`
@@ -62,7 +62,7 @@ const CardBottomContainer = styled.div`
     align-items: center;
     justify-content: space-between;
     
-    margin-top: 8vh;
+    margin-top: 5vh;
 `;
 
 const PrevButton = styled.div`
@@ -120,8 +120,9 @@ const RegisterInfoPage = () => {
     if (queryClient.getQueryData(["registerEmail"]) === undefined) {
         queryClient.setQueryData(["registerEmail"], "");
     }
-    const [registerInfo, setRegisterInfo] = useState<{email: string, password: string, passwordCheck: string, passwordValid: boolean}>({
+    const [registerInfo, setRegisterInfo] = useState({
         email: queryClient.getQueryData(["registerEmail"]) as string,
+        username: "",
         password: "",
         passwordCheck: "",
         passwordValid: true,
@@ -157,6 +158,14 @@ const RegisterInfoPage = () => {
                         <Input placeholder="아이디로 사용할 이메일 주소를 입력해 주십시오."
                                value={registerInfo.email}
                                name="email"
+                               onChange={handleInputChange}
+                               onKeyDown={() => {}} />
+                    </InputForm>
+                    <InputForm>
+                        <InputTitle>닉네임</InputTitle>
+                        <Input placeholder="닉네임으로 사용할 이름을 입력해 주십시오."
+                               value={registerInfo.email}
+                               name="username"
                                onChange={handleInputChange}
                                onKeyDown={() => {}} />
                     </InputForm>
