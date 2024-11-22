@@ -1,7 +1,7 @@
 import Header from "../components/Header";
 import styled, {css} from "styled-components";
 import {CardContainer, TitleText} from "./LoginPage";
-import React from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import Input from "../components/Input";
 import prevIcon from "../assets/images/prev.png"
 import nextIcon from "../assets/images/next.png"
@@ -115,6 +115,34 @@ const Icon = styled.img<{type: string}>`
 `;
 
 const RegisterInfoPage = () => {
+    const [registerInfo, setRegisterInfo] = useState({
+        email: "",
+        password: "",
+        passwordCheck: "",
+        passwordValid: true,
+    })
+
+
+    const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        setRegisterInfo(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    }, []);
+
+    const passwordCheck = () => {
+        if (registerInfo.password === "" || registerInfo.passwordCheck === "") {
+            registerInfo.passwordValid = true;
+            return;
+        }
+        if (registerInfo.password === registerInfo.passwordCheck) {
+            registerInfo.passwordValid = false;
+        } else {
+            registerInfo.passwordValid = true;
+        }
+    }
+
     return (<>
         <Header />
         <MainContainer>
@@ -125,25 +153,32 @@ const RegisterInfoPage = () => {
                     <InputForm>
                         <InputTitle>아이디</InputTitle>
                         <Input placeholder="아이디로 사용할 이메일 주소를 입력해 주십시오."
-                               value={""}
-                               name={""}
-                               onChange={() => {}}
+                               value={registerInfo.email}
+                               name="email"
+                               onChange={handleInputChange}
                                onKeyDown={() => {}} />
                     </InputForm>
                     <InputForm>
                         <InputTitle>비밀번호</InputTitle>
                         <Input placeholder="비밀번호를 입력해 주십시오."
-                               value={""}
+                               value={registerInfo.password}
                                name="password"
-                               onChange={() => {}}
+                               onChange={(e) => {
+                                   handleInputChange(e);
+                                   passwordCheck();
+                               }}
                                onKeyDown={() => {}} />
                     </InputForm>
                     <InputForm>
                         <InputTitle>비밀번호 확인</InputTitle>
                         <Input placeholder="비밀번호를 다시 입력해 주십시오."
-                               value={""}
-                               name="password"
-                               onChange={() => {}}
+                               value={registerInfo.passwordCheck}
+                               name="passwordCheck"
+                               onChange={(e) => {
+                                   handleInputChange(e);
+                                   passwordCheck();
+                               }}
+                               warning={!registerInfo.passwordValid ? "비밀번호와 비밀번호 확인이 일치하지 않습니다." : undefined}
                                onKeyDown={() => {}} />
                     </InputForm>
                 </RegisterInfoForm>

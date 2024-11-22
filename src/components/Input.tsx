@@ -62,7 +62,7 @@ const Input : React.FC<InputProps> = (props) => {
         <InputContainer placeholder={props.placeholder}
                        value={props.value}
                        name={props.name}
-                       type={props.name === "password" ? props.name : "text"}
+                       type={props.name === "password" || props.name === "passwordCheck" ? "password" : "text"}
                        onChange={props.onChange}
                        onKeyDown={props.onKeyDown}
                        $warning={props.warning !== undefined}/>
