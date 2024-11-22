@@ -12,6 +12,10 @@ export interface LoginResponse {
     authType: AuthType;
 }
 
+export interface EmailCheckRequest {
+    email: string;
+}
+
 export const authAPI = {
     login: async (request: LoginRequest) : Promise<{ status: number, data: LoginResponse | {message: string} }> => {
         return await fetch("http://localhost:8080/api/v1/auth", {
@@ -29,5 +33,15 @@ export const authAPI = {
 
             return {status, data};
         });
+    },
+    emailCheck: async (request: EmailCheckRequest) : Promise<{status: number, email: string, message: string}> => {
+        return await fetch(`http://localhost:8080/api/v1/users/check-email?email=${request.email}`, {
+            method: "GET",
+        }).then(async res => {
+            const status = res.status;
+            const data: {email: string, message: string} = await res.json();
+
+            return {status, ...data};
+        })
     }
 }
