@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {useLocation, useParams} from "react-router-dom";
 import {Button, Paper, Stack, TextField} from "@mui/material";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import {bucketFileListAPI} from "../services/bucket/BucketAPI";
+import {bucketFileDeleteAPI, bucketFileListAPI} from "../services/bucket/BucketAPI";
 import {useQueryClient} from "@tanstack/react-query";
 import {getCookie} from "../util/Cookie";
 
@@ -61,7 +61,14 @@ const NbsBucketDetailPage = () => {
                 if (!file) return;
                 copyUrl(`http://localhost:8080/api/v1/files/${file.url}`)
             }}>Copy URL</Button>
-            <Button variant="outlined">Delete</Button>
+            <Button variant="outlined" disabled={selectedFiles.length === 0} onClick={() => {
+                const files = bucket?.files.filter((file) => selectedFiles.includes(file.id));
+                if (!files) return;
+                const flag = confirm(`삭제하실 경우 파일을 되돌릴 수 없습니다.\n정말 삭제하시겠습니까?\n\n삭제할 파일 목록: ${files.map(file => file.fileName).join(",\n                          ")}`);
+                if (flag) {
+                    deleteFiles(files);
+                }
+            }}>Delete</Button>
             <Button variant="contained">Upload</Button>
         </Stack>
         <TextField id="search-file-name" label="파일 이름 검색" variant="outlined" fullWidth/>
@@ -103,6 +110,10 @@ const downloadFiles = (files: File[]) => {
             document.body.removeChild(link);
         }, index * 100); // 각 파일 다운로드 사이에 1초 간격
     });
+};
+
+const deleteFiles = (files: File[]) => {
+    files.forEach((file) => bucketFileDeleteAPI(getCookie("accessToken"), file.id));
 };
 
 export default NbsBucketDetailPage;
