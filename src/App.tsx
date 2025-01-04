@@ -11,6 +11,7 @@ import NbsPage from "./pages/NbsPage";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import NbsBucketCreatePage from "./pages/NbsBucketCreatePage";
+import NbsBucketDetailPage from "./pages/NbsBucketDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App: React.FC = () => {
                         <Route path='/register' element={<RegisterPage/>}/>
                         <Route path='/register/step/1' element={<RegisterInfoPage/>}/>
                         <Route path='/nbs' element={<NbsPage/>}/>
+                        <Route path='/nbs/bucket/detail' element={<NbsBucketDetailPage/>}/>
                         <Route path='/nbs/bucket/create' element={<NbsBucketCreatePage/>}/>
                     </Routes>
                     <ToastContainer position="top-right"
