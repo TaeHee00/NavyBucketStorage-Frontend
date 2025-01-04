@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react"
+import React, {useCallback, useEffect, useState} from "react"
 import Header from "../components/Header";
 import checkOn from "../assets/images/check-on.svg";
 import checkOff from "../assets/images/check-off.svg";
@@ -17,6 +17,8 @@ import {
     TitleTextStyle
 } from "./LoginPage.css";
 import {CheckButtonStyle} from "../components/css/CheckButton.css";
+import {getCookie} from "../util/Cookie";
+import {useNavigate} from "react-router-dom";
 
 // interface LoginTypeProps {
 //     $active: boolean;
@@ -40,7 +42,7 @@ const LoginPage: React.FC = () => {
 
     const { login } = useLogin();
     const queryClient = useQueryClient();
-
+    const navigate = useNavigate();
     const handleLoginType = useCallback((loginType: string) => {
         if (loginState.loginType === loginType) return;
 
