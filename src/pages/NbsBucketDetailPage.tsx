@@ -37,6 +37,7 @@ const paginationModel = { page: 0, pageSize: 5 };
 const NbsBucketDetailPage = () => {
     const { id } = useParams();
     const [bucketId, setBucketId] = useState<number>(parseInt(String(id)));
+    const [selectedFiles, setSelectedFiles] = useState<number[]>([]);
     const queryClient = useQueryClient();
     const [bucket, setBucket] = useState<BucketData>();
 
@@ -51,8 +52,15 @@ const NbsBucketDetailPage = () => {
         <h2>{bucket?.bucketName}</h2>
 
         <Stack spacing={2} direction="row">
-            <Button variant="outlined">Download</Button>
-            <Button variant="outlined">Copy URL</Button>
+            <Button variant="outlined" disabled={selectedFiles.length === 0} onClick={() => {
+                if (!bucket) return;
+                downloadFiles(bucket.files.filter((file) => selectedFiles.includes(file.id)));
+            }}>Download</Button>
+            <Button variant="outlined" disabled={selectedFiles.length !== 1} onClick={() => {
+                const file = bucket?.files.find((item) => item.id === selectedFiles[0]);
+                if (!file) return;
+                copyUrl(`http://localhost:8080/api/v1/files/${file.url}`)
+            }}>Copy URL</Button>
             <Button variant="outlined">Delete</Button>
             <Button variant="contained">Upload</Button>
         </Stack>
@@ -66,19 +74,35 @@ const NbsBucketDetailPage = () => {
                 initialState={{ pagination: { paginationModel } }}
                 pageSizeOptions={[5, 10]}
                 checkboxSelection
+                onRowSelectionModelChange={(rowSelectionModel, details) => {
+                    setSelectedFiles(rowSelectionModel.map((num) => parseInt(String(num))));
+                }}
                 sx={{ border: 0 }}
                 // onCellDoubleClick={(params, event, details) => {console.log(params);}}
             />
         </Paper>
-        DetailPage {bucketId}
-    {/*   File 호출 하고 */}
     </>);
-//             Long id,
-//         String fileName,
-//         String url,
-//         long size,
-//         LocalDateTime createdAt,
-//         LocalDateTime updatedAt
+};
+
+const copyUrl = (url: string) => {
+    navigator.clipboard.writeText(url).then(() => {
+        alert("복사하였습니다.");
+    }).catch(err => {
+        console.error("failed to copy: ", err);
+    })
+}
+
+const downloadFiles = (files: File[]) => {
+    files.forEach((file, index) => {
+        setTimeout(() => {
+            const link = document.createElement('a');
+            link.href = `http://localhost:8080/api/v1/files/${file.url}`;
+            link.download = file.fileName || 'download';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }, index * 100); // 각 파일 다운로드 사이에 1초 간격
+    });
 };
 
 export default NbsBucketDetailPage;
