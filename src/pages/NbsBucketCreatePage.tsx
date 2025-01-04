@@ -12,7 +12,6 @@ import {
     SelectChangeEvent, Stack,
     TextField
 } from "@mui/material";
-import {Spacer} from "@nextui-org/react";
 
 const NbsBucketCreatePage = () => {
     const [legion, setLegion] = useState("");
@@ -65,15 +64,6 @@ const NbsBucketCreatePage = () => {
                 <Button variant="contained">버킷 생성</Button>
             </Stack>
         </div>
-        <section>
-            일반구성 Card
-            * AWS 리전
-            아시아 태평양(시드니) ap-southeast-2
-            * 버킷 이름
-            (input)
-
-            취소 | 버킷 만들기
-        </section>
     </>);
 }
 
