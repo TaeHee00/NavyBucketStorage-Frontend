@@ -1,3 +1,5 @@
+import {File} from "../../pages/NbsBucketDetailPage";
+
 export const bucketListAPI = async (accessToken: string) => {
     return await fetch("http://localhost:8080/api/v1/buckets", {
         method: "GET",
@@ -42,3 +44,26 @@ export const bucketFileDeleteAPI = async (accessToken: string, fileId: number)=>
         return res.status;
     })
 };
+
+export const bucketFilesUploadAPI = async (accessToken: string, formData: FormData): Promise<FileUploadResponse> => {
+    return await fetch(`http://localhost:8080/api/v1/files`, {
+        method: "POST",
+        headers: {
+            "Authorization": `${accessToken}`,
+            credentials: 'include',
+        },
+        body: formData,
+    }).then(async res => {
+        if (res.status !== 201) {
+            alert("권한 오류 발생");
+        }
+        const data = await res.json();
+        return data as FileUploadResponse;
+    })
+}
+
+interface FileUploadResponse {
+    bucket: Map<string, string>;
+    successedFileList: File[];
+    failedFileList: string[];
+}
