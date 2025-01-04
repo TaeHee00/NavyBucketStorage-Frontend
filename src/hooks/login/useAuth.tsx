@@ -1,6 +1,6 @@
 import {LoginRequest, LoginResponse} from "../../types/API";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {authAPI, EmailCheckRequest} from "../../util/api/login/AuthAPI";
+import {authAPI, EmailCheckRequest, RegisterRequest, RegisterResponse} from "../../util/api/login/AuthAPI";
 import {setCookie} from "../../util/Cookie";
 
 export const useLogin = () => {
@@ -58,7 +58,7 @@ export const useEmailCheck = () => {
             if (response.status === 200) {
                 queryClient.setQueryData(["registerEmail"], response.email);
             } else {
-                if (response.status == 409) {
+                if (response.status === 409) {
                     queryClient.setQueryData(["registerEmail"], undefined);
                 } else if (response.status === 500) {
                     alert("[Server Error] 서버에서 오류가 발생하였습니다. 관리자에게 문의해주십시오.");
@@ -75,5 +75,34 @@ export const useEmailCheck = () => {
         isPending: emailCheckMutation.isPending,
         error: emailCheckMutation.error,
         response: queryClient.getQueryData(["registerEmail"]) as {email: string | undefined},
+    };
+}
+
+export const useRegister = () => {
+    const queryClient = useQueryClient();
+
+    const registerMutation = useMutation<{ status: number, data: RegisterResponse }, Error, RegisterRequest>({
+       mutationFn: (request: RegisterRequest) => authAPI.register(request),
+       onSuccess: (response: {status: number, data: RegisterResponse}) => {
+           if (response.status === 201) {
+               queryClient.setQueryData(["registerResponse"], response);
+               queryClient.setQueryData(["registerError"], undefined);
+           } else {
+               if (response.status === 409) {
+                   queryClient.setQueryData(["registerError"], response.data.message);
+               } else if (response.status === 500) {
+                   alert("[Server Error] 서버에서 오류가 발생하였습니다. 관리자에게 문의해주십시오.");
+               } else {
+                   alert("[Client Error] 요청시 오류가 발생하였습니다. 새로고침 이후 다시 시도해주십시오.");
+               }
+           }
+       }
+    });
+
+    return {
+        register: registerMutation.mutate,
+        isPending: registerMutation.isPending,
+        error: queryClient.getQueryData(["registerError"]),
+        response: queryClient.getQueryData(["registerResponse"]) as RegisterResponse,
     };
 }

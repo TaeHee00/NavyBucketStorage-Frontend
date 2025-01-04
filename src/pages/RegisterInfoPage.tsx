@@ -1,136 +1,43 @@
 import Header from "../components/Header";
-import styled, {css} from "styled-components";
-import {CardContainer, TitleText} from "./LoginPage";
 import React, {useCallback, useEffect, useState} from "react";
 import Input from "../components/Input";
-import prevIcon from "../assets/images/prev.png"
+import prevIcon from "../assets/images/prev.png";
 import nextIcon from "../assets/images/next.png"
 import {useQueryClient} from "@tanstack/react-query";
-
-const MainContainer = styled.div`
-    display: flex;
-    height: 76vh;
-    padding: 10vh 0;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    background: #F6F7F8;
-`;
-
-const RegisterInfoForm = styled.div`
-    display: flex;
-    width: 100%;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    
-    margin-top: 1.2vh;
-    gap: 2vh;
-`;
-
-const InputForm = styled.div`
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 1.2vh;
-`;
-
-const InputTitle = styled.span`
-    font-size: 1rem;
-    line-height: 1.88;
-    font-weight: 600;
-    letter-spacing: normal;
-`
-
-const SubText = styled.span`
-    font-family: Pretendard Variable, Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica Neue, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, sans-serif !important;
-    letter-spacing: 0 !important;
-    -webkit-font-smoothing: antialiased !important;
-    word-break: keep-all !important;
-    
-    margin-top: -1.5vh;
-    margin-bottom: 1.5vh;
-`;
-
-const CardBottomContainer = styled.div`
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    
-    align-items: center;
-    justify-content: space-between;
-    
-    margin-top: 5vh;
-`;
-
-const PrevButton = styled.div`
-    font-family: Pretendard Variable, Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica Neue, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, sans-serif !important;
-    letter-spacing: 0 !important;
-    -webkit-font-smoothing: antialiased !important;
-    word-break: keep-all !important;
-    color: #117ce9;
-    line-height: 30px;
-    font-weight: 600;
-    
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 0.8vw;
-    padding: 9px 30px 9px 26px;
-`;
-const NextButton = styled.div`
-    font-family: Pretendard Variable, Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica Neue, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, sans-serif !important;
-    letter-spacing: 0 !important;
-    -webkit-font-smoothing: antialiased !important;
-    word-break: keep-all !important;
-    line-height: 30px;
-    font-weight: 600;
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 0.9vw;
-
-    background: #e7e7e7;
-    color: #aaa;
-    -webkit-tap-highlight-color: rgba(255, 255, 255, .1) !important;
-    border-radius: 6px;
-    padding: 9px 26px 9px 30px;
-    margin-right: 8px;
-`;
-
-const Icon = styled.img<{type: string}>`
-    width: 0.8rem;
-    height: 0.8rem;
-    object-fit: contain;
-    
-    ${props => props.type === "prev" ?css`
-        filter: invert(50%) sepia(82%) saturate(5981%) hue-rotate(197deg) brightness(99%) contrast(87%);
-    ` : css`
-        filter: invert(71%) sepia(0%) saturate(0%) hue-rotate(356deg) brightness(95%) contrast(93%);
-    `}
-`;
+import {useRegister} from "../hooks/login/useAuth";
+import {useNavigate} from "react-router-dom";
+import {toast} from "react-toastify";
+import {
+    ActiveNextButtonStyle,
+    CardBottomContainerStyle, IconActiveStyle, IconNextStyle, IconPrevStyle,
+    InputFormStyle,
+    InputTitleStyle,
+    MainContainerStyle, NextButtonStyle, PrevButtonStyle,
+    RegisterInfoFormStyle, SubTextStyle
+} from "./RegisterInfoPage.css";
+import {CardContainerStyle, TitleTextStyle} from "./LoginPage.css";
 
 const RegisterInfoPage = () => {
     const queryClient = useQueryClient();
     if (queryClient.getQueryData(["registerEmail"]) === undefined) {
         queryClient.setQueryData(["registerEmail"], "");
     }
-    const [registerInfo, setRegisterInfo] = useState({
+    const [registerInfo, setRegisterInfo] = useState<{email: string, username: string, password: string, passwordCheck: string, passwordValid: boolean, registerActive: boolean, emailError: string | undefined}>({
         email: queryClient.getQueryData(["registerEmail"]) as string,
         username: "",
         password: "",
         passwordCheck: "",
-        passwordValid: true,
-    })
+        passwordValid: false,
+        registerActive: false,
+        emailError: undefined,
+    });
 
+    const [errorEmailList, setErrorEmailList] = useState<string[]>([]);
+    const navigate = useNavigate();
+    const {register, response, error} = useRegister();
 
     const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
+        const {name, value} = event.target;
         setRegisterInfo(prev => ({
             ...prev,
             [name]: value
@@ -138,67 +45,116 @@ const RegisterInfoPage = () => {
     }, []);
 
     useEffect(() => {
-        if (registerInfo.password === "" || registerInfo.passwordCheck === "") {
+        if (registerInfo.password === "" && registerInfo.passwordCheck === "") {
             setRegisterInfo((prev) => ({...prev, passwordValid: true}));
-            registerInfo.passwordValid = true;
-            return;
+        } else {
+            setRegisterInfo((prev) => ({...prev, passwordValid: registerInfo.password === registerInfo.passwordCheck}));
         }
-        setRegisterInfo((prev) => ({...prev, passwordValid: registerInfo.password === registerInfo.passwordCheck}));
-    }, [registerInfo.password, registerInfo.passwordCheck]);
+
+        if (registerInfo.email !== "" && registerInfo.username !== "" && registerInfo.password !== "" && registerInfo.passwordValid) {
+            setRegisterInfo((prev) => ({...prev, registerActive: true}));
+        } else {
+            setRegisterInfo((prev) => ({...prev, registerActive: false}));
+        }
+    }, [registerInfo.email, registerInfo.password, registerInfo.passwordCheck, registerInfo.passwordValid, registerInfo.username]);
+
+    useEffect(() => {
+        setRegisterInfo((prev) => ({...prev, emailError: error as string}));
+    }, [error]);
+
+    useEffect(() => {
+        if (registerInfo.email !== "") {
+            if (!errorEmailList.find((errorEmail) => errorEmail === registerInfo.email)) {
+                setRegisterInfo((prev) => ({...prev, emailError: undefined}));
+            }
+        }
+    }, [registerInfo.email, errorEmailList]);
+
+    const width = 69;
 
     return (<>
-        <Header />
-        <MainContainer>
-            <CardContainer width={69}>
-                <TitleText>로그인 정보를 입력해주세요.</TitleText>
-                <SubText>입력하신 정보 회원님의 계정이 생성됩니다.</SubText>
-                <RegisterInfoForm>
-                    <InputForm>
-                        <InputTitle>아이디</InputTitle>
+        <Header/>
+        <div className={MainContainerStyle}>
+            <div className={CardContainerStyle.withWidth} style={width ? { '--card-width': `${width}vw` } as React.CSSProperties  : {}}>
+                <span className={TitleTextStyle}>로그인 정보를 입력해주세요.</span>
+                <span className={SubTextStyle}>입력하신 정보 회원님의 계정이 생성됩니다.</span>
+                <div className={RegisterInfoFormStyle}>
+                    <div className={InputFormStyle}>
+                        <span className={InputTitleStyle}>아이디</span>
                         <Input placeholder="아이디로 사용할 이메일 주소를 입력해 주십시오."
                                value={registerInfo.email}
                                name="email"
                                onChange={handleInputChange}
-                               onKeyDown={() => {}} />
-                    </InputForm>
-                    <InputForm>
-                        <InputTitle>닉네임</InputTitle>
+                               onKeyDown={() => {
+                               }}
+                               warning={registerInfo.emailError ? registerInfo.emailError as string : undefined}/>
+                    </div>
+                    <div className={InputFormStyle}>
+                        <span className={InputTitleStyle}>닉네임</span>
                         <Input placeholder="닉네임으로 사용할 이름을 입력해 주십시오."
-                               value={registerInfo.email}
+                               value={registerInfo.username}
                                name="username"
                                onChange={handleInputChange}
-                               onKeyDown={() => {}} />
-                    </InputForm>
-                    <InputForm>
-                        <InputTitle>비밀번호</InputTitle>
+                               onKeyDown={() => {
+                               }}/>
+                    </div>
+                    <div className={InputFormStyle}>
+                        <span className={InputTitleStyle}>비밀번호</span>
                         <Input placeholder="비밀번호를 입력해 주십시오."
                                value={registerInfo.password}
                                name="password"
                                onChange={handleInputChange}
-                               onKeyDown={() => {}} />
-                    </InputForm>
-                    <InputForm>
-                        <InputTitle>비밀번호 확인</InputTitle>
+                               onKeyDown={() => {
+                               }}/>
+                    </div>
+                    <div className={InputFormStyle}>
+                        <span className={InputTitleStyle}>비밀번호 확인</span>
                         <Input placeholder="비밀번호를 다시 입력해 주십시오."
                                value={registerInfo.passwordCheck}
                                name="passwordCheck"
                                onChange={handleInputChange}
                                warning={!registerInfo.passwordValid ? "비밀번호와 비밀번호 확인이 일치하지 않습니다." : undefined}
-                               onKeyDown={() => {}} />
-                    </InputForm>
-                </RegisterInfoForm>
-                <CardBottomContainer>
-                    <PrevButton>
-                        <Icon src={prevIcon} alt="prev" type="prev"/>
+                               onKeyDown={() => {
+                               }}/>
+                    </div>
+                </div>
+                <div className={CardBottomContainerStyle}>
+                    <button className={PrevButtonStyle} onClick={() => {
+                        navigate("/register");
+                    }}>
+                        <img className={IconPrevStyle} src={prevIcon} alt="prev"/>
                         이전
-                    </PrevButton>
-                    <NextButton>
+                    </button>
+                    <button className={registerInfo.registerActive ? ActiveNextButtonStyle : NextButtonStyle}
+                                onClick={() => {
+                                    if (!registerInfo.passwordValid) {
+                                        alert("비밀번호가 일치하지 않습니다.")
+                                        return;
+                                    }
+                                    register({
+                                        username: registerInfo.username,
+                                        email: registerInfo.email,
+                                        password: registerInfo.password
+                                    });
+
+                                    if (!response) {
+                                        setErrorEmailList((prev) => [...prev, registerInfo.email]);
+                                        setRegisterInfo((prev) => ({...prev, emailError: error as string}));
+                                        return;
+                                    } else {
+                                        navigate("/");
+                                        // TODO: loading 애니메이션 추가
+                                        toast("정상적으로 회원가입되었습니다.")
+                                    }
+                                }}>
                         다음
-                        <Icon src={nextIcon} alt="next" type="next"/>
-                    </NextButton>
-                </CardBottomContainer>
-            </CardContainer>
-        </MainContainer>
+                        <img src={nextIcon}
+                              alt="next"
+                             className={registerInfo.registerActive ? IconActiveStyle : IconNextStyle}/>
+                    </button>
+                </div>
+            </div>
+        </div>
     </>);
 }
 

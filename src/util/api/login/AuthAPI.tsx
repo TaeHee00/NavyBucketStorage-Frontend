@@ -12,6 +12,21 @@ export interface LoginResponse {
     authType: AuthType;
 }
 
+export interface RegisterResponse {
+    id: number,
+    username: string,
+    email: string,
+    createdAt: string,
+    updatedAt: string,
+    message: string,
+}
+
+export interface RegisterRequest {
+    username: string,
+    email: string,
+    password: string,
+}
+
 export interface EmailCheckRequest {
     email: string;
 }
@@ -42,6 +57,19 @@ export const authAPI = {
             const data: {email: string, message: string} = await res.json();
 
             return {status, ...data};
+        })
+    },
+    register: async (request: RegisterRequest) : Promise<{status: number, data: RegisterResponse}> => {
+        return await fetch("http://localhost:8080/api/v1/users", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            body: JSON.stringify(request),
+        }).then(async res => {
+            const status = res.status;
+            const data = await res.json();
+            return {status, data};
         })
     }
 }
