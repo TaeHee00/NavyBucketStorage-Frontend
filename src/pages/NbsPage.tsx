@@ -10,6 +10,7 @@ import {
 import {bucketListAPI} from "../services/bucket/BucketAPI";
 import {useQueryClient} from "@tanstack/react-query";
 import {useNavigate} from "react-router-dom";
+import {getCookie} from "../util/Cookie";
 
 interface Bucket {
     id: number,
@@ -26,7 +27,7 @@ const NbsPage = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     useEffect(() => {
-        bucketListAPI(queryClient.getQueryData(["accessToken"]) as string)
+        bucketListAPI(getCookie("accessToken"))
             .then((res) => {
                 setBucketList(res.data)
             });
@@ -77,11 +78,7 @@ const NbsPage = () => {
                         <Bucket bucket={item} handler={handleCheck} key={item.id}
                                 checked={checkedBucketList.includes(item.id)}
                                 detailLink={() => {
-                                    navigate("/nbs/bucket/detail", {
-                                    state: {
-                                        bucketId: item.id,
-                                    }
-                                })}}
+                                    navigate(`/nbs/bucket/detail/${item.id}`)}}
                                 />
                     ))}
                 </tbody>
