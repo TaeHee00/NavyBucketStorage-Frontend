@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from "react"
 import Header from "../components/Header";
-import checkOn from "../assets/images/check-on.svg";
-import checkOff from "../assets/images/check-off.svg";
+// import checkOn from "../assets/images/check-on.svg";
+// import checkOff from "../assets/images/check-off.svg";
 import CheckButton from "../components/CheckButton";
 import Input, {LoginErrorType} from "../components/Input";
 import {useLogin} from "../hooks/login/useAuth";
@@ -79,15 +79,15 @@ const LoginPage: React.FC = () => {
                     <button className={loginState.loginType === "MAIN" ? ActiveLoginTypeButtonStyle : LoginTypeContainerStyle }
                                      onClick={() => handleLoginType("MAIN")}
                                      type="button" >
-                        <img className={CheckButtonStyle}
-                                   src={loginState.loginType === "MAIN" ? checkOn : checkOff}  alt={""}/>
+                        {/*<img className={CheckButtonStyle}*/}
+                        {/*           src={loginState.loginType === "MAIN" ? checkOn : checkOff}  alt={""}/>*/}
                         메인 계정
                     </button>
                     <button className={loginState.loginType === "IAM" ? ActiveLoginTypeButtonStyle : LoginTypeContainerStyle }
                                      onClick={() => handleLoginType("IAM")}
                                      type="button" >
-                        <img className={CheckButtonStyle} alt={""}
-                                   src={loginState.loginType === "IAM" ? checkOn : checkOff} />
+                        {/*<img className={CheckButtonStyle} alt={""}*/}
+                        {/*           src={loginState.loginType === "IAM" ? checkOn : checkOff} />*/}
                         IAM 계정
                     </button>
                 </div>
