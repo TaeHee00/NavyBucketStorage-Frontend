@@ -16,9 +16,16 @@ export const useLogin = () => {
 
             if (data.status === 200) {
                 const successData = data.data as LoginResponse;
-                queryClient.setQueryData(["accessToken"], successData.accessToken);
-                queryClient.setQueryData(["refreshToken"], successData.refreshToken);
-                queryClient.setQueryData(["username"], successData.username);
+                setCookie("accessToken", successData.accessToken, {
+                    path: "/",
+                });
+                setCookie("refreshToken", successData.refreshToken, {
+                    path: "/",
+                })
+                setCookie("username", successData.username, {
+                    path: "/",
+                })
+
                 navigate("/nbs");
 
                 alert(`[로그인 성공]\naccessToken: ${successData.accessToken}\nrefreshToken: ${successData.refreshToken}\nusername: ${successData.username}\nauthType: ${successData.authType}`);
