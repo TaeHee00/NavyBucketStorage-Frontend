@@ -2,9 +2,11 @@ import {LoginRequest, LoginResponse} from "../../types/API";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {authAPI, EmailCheckRequest, RegisterRequest, RegisterResponse} from "../../util/api/login/AuthAPI";
 import {setCookie} from "../../util/Cookie";
+import {useNavigate} from "react-router-dom";
 
 export const useLogin = () => {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const loginMutation = useMutation<{status: number, data: LoginResponse | {message: string}}, Error, LoginRequest>({
         mutationFn: (loginData: LoginRequest) => authAPI.login(loginData),
@@ -14,14 +16,10 @@ export const useLogin = () => {
 
             if (data.status === 200) {
                 const successData = data.data as LoginResponse;
-                setCookie("accessToken", successData.accessToken, {
-                    path: "/",
-                    httpOnly: true,
-                });
-                setCookie("refreshToken", successData.refreshToken, {
-                    path: "/",
-                    httpOnly: true,
-                })
+                queryClient.setQueryData(["accessToken"], successData.accessToken);
+                queryClient.setQueryData(["refreshToken"], successData.refreshToken);
+                queryClient.setQueryData(["username"], successData.username);
+                navigate("/nbs");
 
                 alert(`[로그인 성공]\naccessToken: ${successData.accessToken}\nrefreshToken: ${successData.refreshToken}\nusername: ${successData.username}\nauthType: ${successData.authType}`);
             } else {
